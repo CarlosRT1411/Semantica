@@ -7,7 +7,7 @@ namespace Semantica
     {
         public Error(string mensaje, StreamWriter log) : base(mensaje)
         {
-            log.WriteLine(mensaje);
+            log.WriteLine(mensaje); //cuenta
         }
     }
 }
