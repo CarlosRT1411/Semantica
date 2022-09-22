@@ -14,6 +14,7 @@ namespace Semantica
     {
         List<Variable> variables = new List<Variable>();
         Stack<float> stack = new Stack<float>();
+        Variable.TipoDato dominante;
         public Lenguaje()
         {
 
@@ -39,6 +40,17 @@ namespace Semantica
                 if (v.getNombre().Equals(nombre)) 
                     return v.getValor(); 
             return 0;
+        }
+        private Variable.TipoDato getTipo(string nombre)
+        {
+            foreach (Variable v in variables)
+            {  
+                if (v.getNombre().Equals(nombre)) 
+                {
+                    return v.getTipoDato(); 
+                }
+            } 
+            return Variable.TipoDato.Char;
         }
         //Programa  -> Librerias? Variables? Main
         public void Programa()
@@ -195,6 +207,31 @@ namespace Semantica
                 Asignacion();
             }
         }
+        private Variable.TipoDato evaluaNumero(float resultado) 
+        {
+            if (resultado % 1 != 0)
+            {
+                return Variable.TipoDato.Float;
+            } 
+            if(resultado <= 255)
+            {
+                return Variable.TipoDato.Char;
+            }
+            else if (resultado <= 65535)
+            {
+                return Variable.TipoDato.Int;
+            }
+            else
+            {
+                return Variable.TipoDato.Float;
+            }
+            return Variable.TipoDato.Char; 
+        }
+        private bool evaluaSemantica(string variable, float resultado) 
+        {
+            Variable.TipoDato tipoDato = getTipo(variable);
+            return false;
+        }
 
         //Asignacion -> identificador = cadena | Expresion;
         private void Asignacion()
@@ -207,12 +244,26 @@ namespace Semantica
             log.WriteLine();
             log.Write(getContenido() + " = ");
             match(Tipos.Asignacion);
+            dominante = Variable.TipoDato.Char;
             Expresion();
             match(";");
             float resultado = stack.Pop();
             log.Write(" = " + resultado);
             log.WriteLine();
-            modVariable(nombre, resultado); 
+            Console.WriteLine(dominante);
+            Console.WriteLine(evaluaNumero(resultado));
+            if(dominante < evaluaNumero(resultado))
+            {
+                dominante = evaluaNumero(resultado);
+            }
+            if(dominante <= getTipo(nombre))
+            {
+                modVariable(nombre, resultado); 
+            }
+            else 
+            {
+                throw new Error("Error de semantica no podemos asignar un " + dominante + " a un " + getTipo(nombre) + " en linea: "+linea, log);
+            } 
         } 
 
         //While -> while(Condicion) bloque de instrucciones | instruccion
@@ -485,6 +536,9 @@ namespace Semantica
             if (getClasificacion() == Tipos.Numero)
             {
                 log.Write(getContenido() + " " );
+                if(dominante < evaluaNumero(float.Parse(getContenido()))) {
+                    dominante = evaluaNumero(float.Parse(getContenido()));
+                }
                 stack.Push(float.Parse(getContenido()));
                 match(Tipos.Numero);
             }
