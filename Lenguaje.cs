@@ -1,6 +1,7 @@
+//Carlos Ramírez Tovar
 using System;
 
-//Requerimiento 1.- Actualizar dominante para variables en la exxpresión
+//Requerimiento 1.- Actualizar dominante para variables en la expresión
 //Requerimiento 2.- Actualizar el dominante para el casteo y el valor de la subexpresion
 //Requerimiento 3.- Programar un metodo de conversion de un valor a un tipo de dato
 //                  private float conviert(float valor, String tipoDato);
@@ -139,70 +140,70 @@ namespace Semantica
             }
         }
         //Bloque de instrucciones -> {listaIntrucciones?}
-        private void BloqueInstrucciones()
+        private void BloqueInstrucciones(bool evaluacion)
         {
             match("{");
             if (getContenido() != "}")
             {
-                ListaInstrucciones();
+                ListaInstrucciones(evaluacion);
             }
             match("}");
         }
 
         //ListaInstrucciones -> Instruccion ListaInstrucciones?
-        private void ListaInstrucciones()
+        private void ListaInstrucciones(bool evaluacion)
         {
-            Instruccion();
+            Instruccion(evaluacion);
             if (getContenido() != "}")
             {
-                ListaInstrucciones();
+                ListaInstrucciones(evaluacion);
             }
         }
 
         //ListaInstruccionesCase -> Instruccion ListaInstruccionesCase?
-        private void ListaInstruccionesCase()
+        private void ListaInstruccionesCase(bool evaluacion)
         {
-            Instruccion();
+            Instruccion(evaluacion);
             if (getContenido() != "case" && getContenido() != "break" && getContenido() != "default" && getContenido() != "}")
             {
-                ListaInstruccionesCase();
+                ListaInstruccionesCase(evaluacion);
             }
         }
 
         //Instruccion -> Printf | Scanf | If | While | do while | For | Switch | Asignacion
-        private void Instruccion()
+        private void Instruccion(bool evaluacion)
         {
             if (getContenido() == "printf")
             {
-                Printf();
+                Printf(evaluacion);
             }
             else if (getContenido() == "scanf")
             {
-                Scanf();
+                Scanf(evaluacion);
             }
             else if (getContenido() == "if")
             {
-                If();
+                If(evaluacion);
             }
             else if (getContenido() == "while")
             {
-                While();
+                While(evaluacion);
             }
             else if (getContenido() == "do")
             {
-                Do();
+                Do(evaluacion);
             }
             else if (getContenido() == "for")
             {
-                For();
+                For(evaluacion);
             }
             else if (getContenido() == "switch")
             {
-                Switch();
+                Switch(evaluacion);
             }
             else
             {
-                Asignacion();
+                Asignacion(evaluacion);
             }
         }
         private Variable.TipoDato evaluaNumero(float resultado)
@@ -223,7 +224,6 @@ namespace Semantica
             {
                 return Variable.TipoDato.Float;
             }
-            return Variable.TipoDato.Char;
         }
         private bool evaluaSemantica(string variable, float resultado)
         {
@@ -232,7 +232,7 @@ namespace Semantica
         }
 
         //Asignacion -> identificador = cadena | Expresion;
-        private void Asignacion()
+        private void Asignacion(bool evaluacion)
         {
             string nombre = getContenido();
             if (!existeVariable(getContenido()))
@@ -255,8 +255,11 @@ namespace Semantica
                 dominante = evaluaNumero(resultado);
             }
             if (dominante <= getTipo(nombre))
-            {
-                modVariable(nombre, resultado);
+            {   
+                if(evaluacion)
+                {
+                    modVariable(nombre, resultado);
+                }
             }
             else
             {
@@ -265,62 +268,62 @@ namespace Semantica
         }
 
         //While -> while(Condicion) bloque de instrucciones | instruccion
-        private void While()
+        private void While(bool evaluacion)
         {
             match("while");
             match("(");
-            Condicion();
+            Condicion(evaluacion);
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones();
+                BloqueInstrucciones(evaluacion);
             }
             else
             {
-                Instruccion();
+                Instruccion(evaluacion);
             }
         }
 
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
-        private void Do()
+        private void Do(bool evaluacion)
         {
             match("do");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones();
+                BloqueInstrucciones(evaluacion);
             }
             else
             {
-                Instruccion();
+                Instruccion(evaluacion);
             }
             match("while");
             match("(");
-            Condicion();
+            Condicion(evaluacion);
             match(")");
             match(";");
         }
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
-        private void For()
+        private void For(bool evaluacion)
         {
             match("for");
             match("(");
-            Asignacion();
-            Condicion();
+            Asignacion(evaluacion);
+            Condicion(evaluacion);
             match(";");
-            Incremento();
+            Incremento(evaluacion);
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones();
+                BloqueInstrucciones(evaluacion);
             }
             else
             {
-                Instruccion();
+                Instruccion(evaluacion);
             }
         }
 
         //Incremento -> Identificador ++ | --
-        private void Incremento()
+        private void Incremento(bool evaluacion)
         {
             string Variable = getContenido();
             //Requerimiento 2 sino existe la variable levantar excepcion
@@ -329,18 +332,24 @@ namespace Semantica
             match(Tipos.Identificador);
             if (getContenido() == "++")
             {
-                modVariable(Variable, getValor(Variable) + 1);
+                if(evaluacion) 
+                {
+                    modVariable(Variable, getValor(Variable) + 1);
+                }
                 match("++");
             }
             else
             {
-                modVariable(Variable, getValor(Variable) - 1);
+                if(evaluacion)
+                {
+                    modVariable(Variable, getValor(Variable) - 1);
+                }
                 match("--");
             }
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
-        private void Switch()
+        private void Switch(bool evaluacion)
         {
             match("switch");
             match("(");
@@ -348,31 +357,31 @@ namespace Semantica
             stack.Pop();
             match(")");
             match("{");
-            ListaDeCasos();
+            ListaDeCasos(evaluacion);
             if (getContenido() == "default")
             {
                 match("default");
                 match(":");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones();
+                    BloqueInstrucciones(evaluacion);
                 }
                 else
                 {
-                    Instruccion();
+                    Instruccion(evaluacion);
                 }
             }
             match("}");
         }
 
         //ListaDeCasos -> case Expresion: listaInstruccionesCase (break;)? (ListaDeCasos)?
-        private void ListaDeCasos()
+        private void ListaDeCasos(bool evaluacion)
         {
             match("case");
             Expresion();
             stack.Pop();
             match(":");
-            ListaInstruccionesCase();
+            ListaInstruccionesCase(evaluacion);
             if (getContenido() == "break")
             {
                 match("break");
@@ -380,50 +389,68 @@ namespace Semantica
             }
             if (getContenido() == "case")
             {
-                ListaDeCasos();
+                ListaDeCasos(evaluacion);
             }
         }
 
         //Condicion -> Expresion operador relacional Expresion
-        private void Condicion()
+        private bool Condicion(bool evaluacion)
         {
+            float e1, e2;
             Expresion();
-            stack.Pop();
+            string operador = getContenido();
             match(Tipos.OperadorRelacional);
             Expresion();
+            e2 = stack.Pop();
+            e1 = stack.Pop();
+            switch (operador)
+            {
+                case "==":
+                    return e1 == e2;
+                case ">":   
+                    return e1 > e2; 
+                case ">=":
+                    return e1 >= e2; 
+                case "<":
+                    return e1 < e2;
+                case "<=":
+                    return e1 <= e2;
+                default: 
+                    return e1 != e2;
+            }
         }
 
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
-        private void If()
+        private void If(bool evaluacion)
         {
             match("if");
             match("(");
-            Condicion();
+            bool validarIf = Condicion(evaluacion);
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones();
+                BloqueInstrucciones(validarIf);
             }
             else
             {
-                Instruccion();
+                Instruccion(validarIf);
             }
             if (getContenido() == "else")
             {
                 match("else");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones();
+                    BloqueInstrucciones(validarIf);
                 }
                 else
                 {
-                    Instruccion();
+                    Instruccion(validarIf);
                 }
             }
         }
 
         //Printf -> printf(cadena|expresion);
-        private void Printf()
+        private void Printf(bool evaluacion)
         {
             match("printf");
             match("(");
@@ -432,20 +459,27 @@ namespace Semantica
                 setContenido(getContenido().Replace("\\t", "    "));
                 setContenido(getContenido().Replace("\\n", "\n"));
                 setContenido(getContenido().Replace("\"", string.Empty));
-                Console.Write(getContenido());
+                if(evaluacion)
+                {
+                    Console.Write(getContenido());
+                }
                 match(Tipos.Cadena);
             }
             else
             {
                 Expresion();
-                Console.Write(stack.Pop());
+                //float resultado = stack.Pop();
+                if(evaluacion)
+                {
+                    Console.Write(stack.Pop());
+                }
             }
             match(")");
             match(";");
         }
 
         //Scanf -> scanf(cadena,&identificador);
-        private void Scanf()
+        private void Scanf(bool evaluacion)
         {
             match("scanf");
             match("(");
@@ -469,7 +503,7 @@ namespace Semantica
             match("main");
             match("(");
             match(")");
-            BloqueInstrucciones();
+            BloqueInstrucciones(true);
         }
 
         //Expresion -> Termino MasTermino
@@ -545,8 +579,13 @@ namespace Semantica
             {
                 stack.Push(getValor(getContenido()));
                 if (!existeVariable(getContenido()))
+                {
                     throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
-                //Requerimiento 1
+                }
+                if(dominante < evaluaNumero(float.Parse(getContenido())))
+                {
+                    dominante = evaluaNumero(float.Parse(getContenido()));
+                }
                 match(Tipos.Identificador);
             }
             else
