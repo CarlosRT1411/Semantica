@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Carlos Ramírez Tovar
+using System;
 using System.IO;
 
 namespace Semantica

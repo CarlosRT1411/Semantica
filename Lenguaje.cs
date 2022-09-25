@@ -247,9 +247,6 @@ namespace Semantica
             match(";");
             float resultado = stack.Pop();
             log.Write(" = " + resultado);
-            log.WriteLine();
-            Console.WriteLine(dominante);
-            Console.WriteLine(evaluaNumero(resultado));
             if (dominante < evaluaNumero(resultado))
             {
                 dominante = evaluaNumero(resultado);
@@ -467,11 +464,10 @@ namespace Semantica
             }
             else
             {
-                Expresion();
-                //float resultado = stack.Pop();
                 if(evaluacion)
                 {
-                    Console.Write(stack.Pop());
+                    Expresion();
+                    Console.WriteLine(stack.Pop());
                 }
             }
             match(")");
@@ -582,9 +578,9 @@ namespace Semantica
                 {
                     throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
                 }
-                if(dominante < evaluaNumero(float.Parse(getContenido())))
+                if(dominante < evaluaNumero(getValor(getContenido())))
                 {
-                    dominante = evaluaNumero(float.Parse(getContenido()));
+                    dominante = evaluaNumero(getValor(getContenido()));
                 }
                 match(Tipos.Identificador);
             }
