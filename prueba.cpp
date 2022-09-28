@@ -5,15 +5,12 @@
 
 // Este programa calcula el volumen de un cilindro.
 char x;
+int a;
 
 void main()
 {
-    x = 5 + 3;
-    printf("Que esta pasando");
-    printf(x);
-    printf("Veamos");
-    if(3+5<10)
+    if(1==1)
     {
-        printf(x);
-    } 
+        printf("Hola");
+    }
 }
