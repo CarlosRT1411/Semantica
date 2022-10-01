@@ -4,13 +4,12 @@
 #include <conio.h>
 
 // Este programa calcula el volumen de un cilindro.
-char x;
-int a;
+char y;
+int x;
 
 void main()
 {
-    if(1==1)
-    {
-        printf("Hola");
-    }
+    x = 4;
+    y = (char) (256);
+    printf(y);
 }

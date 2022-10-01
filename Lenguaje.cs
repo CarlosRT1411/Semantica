@@ -8,6 +8,7 @@ using System;
 //                  Deberan de usar el residuo de la division por %255, %65535
 //Requerimiento 4.- Evaluar nuevamente la condición del if, else, while, for, doWhile con respecto al parametro que recibe
 //Requerimiento 5.- Levantar una excepción en scanf cuando la captura no sea un numero
+//Requerimiento 6.- Ejectura el for
 
 namespace Semantica
 {
@@ -273,10 +274,13 @@ namespace Semantica
             Console.WriteLine(dominante);
             Console.WriteLine(evaluaNumero(resultado));
             log.Write(" = " + resultado);
-            //if (dominante < evaluaNumero(resultado)) a = x; int x = 5;
-            //{
-            //    dominante = evaluaNumero(resultado);
-            //}
+            //
+            if (dominante < evaluaNumero(resultado))
+            {
+                Console.WriteLine("flag: " + evaluaNumero(resultado));
+                dominante = evaluaNumero(resultado);
+            }
+            //
             if (dominante <= getTipo(nombre))
             {
                 if (evaluacion)
@@ -331,7 +335,12 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
-            bool validarFor = Condicion(); //Requerimiento 4
+            bool validarFor = Condicion(); 
+            //Requerimiento 4
+            //Requerimiento 6: 
+            //a) Guardar la posición del archivo de texto
+            //b) Agregar un ciclo while y validar la condición
+            //while(){
             match(";");
             Incremento(evaluacion);
             match(")");
@@ -343,6 +352,8 @@ namespace Semantica
             {
                 Instruccion(evaluacion);
             }
+            //}
+            //d) Sacar otro token
         }
 
         //Incremento -> Identificador ++ | --
