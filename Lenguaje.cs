@@ -264,8 +264,8 @@ namespace Semantica
             if (!existeVariable(getContenido()))
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
             match(Tipos.Identificador);
-            log.WriteLine();
-            log.Write(getContenido() + " = ");
+            //log.WriteLine();
+           // log.Write(getContenido() + " = ");
             match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
             Expresion();
@@ -273,7 +273,7 @@ namespace Semantica
             float resultado = stack.Pop();
             Console.WriteLine(dominante);
             Console.WriteLine(evaluaNumero(resultado));
-            log.Write(" = " + resultado);
+            //log.Write(" = " + resultado);
             //
             if (dominante < evaluaNumero(resultado))
             {
@@ -297,62 +297,82 @@ namespace Semantica
         //While -> while(Condicion) bloque de instrucciones | instruccion
         private void While(bool evaluacion)
         {
+            bool validarWhile;
             match("while");
             match("(");
-            bool validarWhile  = Condicion(); //Requerimiento
+            if(evaluacion){
+                validarWhile = Condicion();//Requerimiento 4
+            }else {
+                Condicion();
+                validarWhile = false;
+            }
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones(evaluacion);
+                BloqueInstrucciones(validarWhile);
             }
             else
             {
-                Instruccion(evaluacion);
+                Instruccion(validarWhile);
             }
         }
 
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
         private void Do(bool evaluacion)
         {
+            bool validarDo = evaluacion;
             match("do");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones(evaluacion);
+                BloqueInstrucciones(validarDo);
             }
             else
             {
-                Instruccion(evaluacion);
+                Instruccion(validarDo);
             }
             match("while");
             match("(");
-            bool validarDo = Condicion(); //Requerimiento 4
+            if(evaluacion){
+                validarDo = Condicion();//Requerimiento 4
+            }else {
+                Condicion();
+                validarDo = false;
+            } //Requerimiento 4
             match(")");
             match(";");
         }
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
         private void For(bool evaluacion)
         {
+            bool validarFor;
             match("for");
             match("(");
             Asignacion(evaluacion);
-            bool validarFor = Condicion(); 
+            if(evaluacion){
+                validarFor = Condicion();//Requerimiento 4
+            }
+            else 
+            {
+                Condicion();
+                validarFor = false;
+            }
+            match(";");
             //Requerimiento 4
             //Requerimiento 6: 
             //a) Guardar la posición del archivo de texto
             //b) Agregar un ciclo while y validar la condición
-            //while(){
-            match(";");
-            Incremento(evaluacion);
-            match(")");
-            if (getContenido() == "{")
-            {
-                BloqueInstrucciones(evaluacion);
-            }
-            else
-            {
-                Instruccion(evaluacion);
-            }
-            //}
+            do{    
+                Incremento(validarFor);
+                match(")");
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones(validarFor);
+                }
+                else
+                {
+                    Instruccion(validarFor);
+                }
+            }while(validarFor);
             //d) Sacar otro token
         }
 
@@ -456,9 +476,15 @@ namespace Semantica
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
         private void If(bool evaluacion)
         {
+            bool validarIf;
             match("if");
             match("(");
-            bool validarIf = Condicion();//Requerimiento 4
+            if(evaluacion){
+                validarIf = Condicion();//Requerimiento 4
+            }else {
+                Condicion();
+                validarIf = false;
+            }
             match(")");
             if (getContenido() == "{")
             {
@@ -473,11 +499,11 @@ namespace Semantica
                 match("else");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarIf);
+                    BloqueInstrucciones(!validarIf);
                 }
                 else
                 {
-                    Instruccion(validarIf);
+                    Instruccion(!validarIf);
                 }
             }
         }
@@ -523,7 +549,14 @@ namespace Semantica
             if(evaluacion)
             {
                 string val = "" + Console.ReadLine(); 
-                modVariable(getContenido(), float.Parse(val));
+                if(val.All(char.IsDigit))
+                {
+                    modVariable(getContenido(), float.Parse(val));
+                }
+                else
+                {
+                    throw new Error("Error: No se puede asignar un valor no numerico a una variable numerica en linea: " + linea, log);
+                }
             }
             match(Tipos.Identificador);
             match(")");
@@ -546,7 +579,7 @@ namespace Semantica
                 string operador = getContenido();
                 match(Tipos.OperadorTermino);
                 Termino();
-                log.Write(operador + " ");
+                //log.Write(operador + " ");
                 float n1 = stack.Pop();
                 float n2 = stack.Pop();
                 switch (operador)
@@ -574,7 +607,7 @@ namespace Semantica
                 string operador = getContenido();
                 match(Tipos.OperadorFactor);
                 Factor();
-                log.Write(operador + " ");
+                //log.Write(operador + " ");
                 float n1 = stack.Pop();
                 float n2 = stack.Pop();
                 switch (operador)
@@ -593,7 +626,7 @@ namespace Semantica
         {
             if (getClasificacion() == Tipos.Numero)
             {
-                log.Write(getContenido() + " ");
+                //log.Write(getContenido() + " ");
                 if (dominante < evaluaNumero(float.Parse(getContenido())))
                 {
                     dominante = evaluaNumero(float.Parse(getContenido()));

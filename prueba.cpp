@@ -9,7 +9,5 @@ int x;
 
 void main()
 {
-    x = 4;
-    y = (char) (256);
-    printf(y);
+    printf("Hola mundo");
 }
