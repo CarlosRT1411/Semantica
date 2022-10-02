@@ -348,20 +348,24 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
-            if(evaluacion){
-                validarFor = Condicion();//Requerimiento 4
-            }
-            else 
-            {
-                Condicion();
-                validarFor = false;
-            }
-            match(";");
+            int pos = getPosicion();
             //Requerimiento 4
             //Requerimiento 6: 
             //a) Guardar la posición del archivo de texto
-            //b) Agregar un ciclo while y validar la condición
-            do{    
+            //b) Agregar un ciclo while y validar la condición   
+            //do{ 
+                Console.WriteLine(contenidoC());
+                SetPosition(pos + 5);
+                Console.WriteLine(contenidoC());
+                if(evaluacion){
+                    validarFor = Condicion();//Requerimiento 4
+                }
+                else 
+                {
+                    Condicion();
+                    validarFor = false;
+                }
+                match(";");
                 Incremento(validarFor);
                 match(")");
                 if (getContenido() == "{")
@@ -372,7 +376,7 @@ namespace Semantica
                 {
                     Instruccion(validarFor);
                 }
-            }while(validarFor);
+            //}while(validarFor);
             //d) Sacar otro token
         }
 

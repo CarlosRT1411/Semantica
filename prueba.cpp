@@ -9,5 +9,8 @@ int x;
 
 void main()
 {
-    printf("Hola mundo");
+    for(x=1;x<=10;x++)
+    {
+        printf("Probando el ciclo for\n");
+    }
 }
