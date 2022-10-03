@@ -265,7 +265,7 @@ namespace Semantica
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
             match(Tipos.Identificador);
             //log.WriteLine();
-           // log.Write(getContenido() + " = ");
+            // log.Write(getContenido() + " = ");
             match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
             Expresion();
@@ -297,14 +297,12 @@ namespace Semantica
         //While -> while(Condicion) bloque de instrucciones | instruccion
         private void While(bool evaluacion)
         {
-            bool validarWhile;
             match("while");
             match("(");
-            if(evaluacion){
-                validarWhile = Condicion();//Requerimiento 4
-            }else {
-                Condicion();
-                validarWhile = false;
+            bool validarWhile = Condicion();
+            if (!evaluacion)
+            {
+                validarWhile = evaluacion;
             }
             match(")");
             if (getContenido() == "{")
@@ -332,19 +330,16 @@ namespace Semantica
             }
             match("while");
             match("(");
-            if(evaluacion){
-                validarDo = Condicion();//Requerimiento 4
-            }else {
-                Condicion();
-                validarDo = false;
-            } //Requerimiento 4
+            validarDo = Condicion();
+            if(!evaluacion){
+                validarDo = evaluacion;
+            }
             match(")");
             match(";");
         }
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
         private void For(bool evaluacion)
         {
-            bool validarFor;
             match("for");
             match("(");
             Asignacion(evaluacion);
@@ -354,28 +349,25 @@ namespace Semantica
             //a) Guardar la posición del archivo de texto
             //b) Agregar un ciclo while y validar la condición   
             //do{ 
-                Console.WriteLine(contenidoC());
-                SetPosition(pos + 5);
-                Console.WriteLine(contenidoC());
-                if(evaluacion){
-                    validarFor = Condicion();//Requerimiento 4
-                }
-                else 
-                {
-                    Condicion();
-                    validarFor = false;
-                }
-                match(";");
-                Incremento(validarFor);
-                match(")");
-                if (getContenido() == "{")
-                {
-                    BloqueInstrucciones(validarFor);
-                }
-                else
-                {
-                    Instruccion(validarFor);
-                }
+            Console.WriteLine(contenidoC());
+            SetPosition(pos + 5);
+            Console.WriteLine(contenidoC());
+            bool validarFor = Condicion();
+            if (!evaluacion)
+            {
+                validarFor = evaluacion;
+            }
+            match(";");
+            Incremento(validarFor);
+            match(")");
+            if (getContenido() == "{")
+            {
+                BloqueInstrucciones(validarFor);
+            }
+            else
+            {
+                Instruccion(validarFor);
+            }
             //}while(validarFor);
             //d) Sacar otro token
         }
@@ -480,14 +472,12 @@ namespace Semantica
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
         private void If(bool evaluacion)
         {
-            bool validarIf;
             match("if");
             match("(");
-            if(evaluacion){
-                validarIf = Condicion();//Requerimiento 4
-            }else {
-                Condicion();
-                validarIf = false;
+            bool validarIf = Condicion();
+            if (!evaluacion)
+            {
+                validarIf = evaluacion;
             }
             match(")");
             if (getContenido() == "{")
@@ -503,11 +493,25 @@ namespace Semantica
                 match("else");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(!validarIf);
+                    if (evaluacion)
+                    {
+                        BloqueInstrucciones(!validarIf);
+                    }
+                    else
+                    {
+                        BloqueInstrucciones(evaluacion);
+                    }
                 }
                 else
                 {
-                    Instruccion(!validarIf);
+                    if (evaluacion)
+                    {
+                        Instruccion(!validarIf);
+                    }
+                    else
+                    {
+                        Instruccion(evaluacion);
+                    }
                 }
             }
         }
@@ -550,10 +554,10 @@ namespace Semantica
             match("&");
             if (!existeVariable(getContenido()))
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
-            if(evaluacion)
+            if (evaluacion)
             {
-                string val = "" + Console.ReadLine(); 
-                if(val.All(char.IsDigit))
+                string val = "" + Console.ReadLine();
+                if (val.All(char.IsDigit))
                 {
                     modVariable(getContenido(), float.Parse(val));
                 }
@@ -567,7 +571,7 @@ namespace Semantica
             match(";");
         }
 
-        
+
 
         //Expresion -> Termino MasTermino
         private void Expresion()
@@ -681,9 +685,9 @@ namespace Semantica
                 {
                     dominante = casteo;
                     float valor = stack.Pop();
-                    if (valor%1 != 0 && casteo != Variable.TipoDato.Float)
+                    if (valor % 1 != 0 && casteo != Variable.TipoDato.Float)
                     {
-                        valor = (float) Math.Truncate(valor);
+                        valor = (float)Math.Truncate(valor);
                     }
                     stack.Push(convierte(valor, casteo));
                     //Requerimiento 2 - Sacar un elmento del stack

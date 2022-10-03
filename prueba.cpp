@@ -1,4 +1,4 @@
-//Carlos Ramírez Tovar
+// Carlos Ramírez Tovar
 #include <iostream>
 #include <stdio.h>
 #include <conio.h>
@@ -9,8 +9,18 @@ int x;
 
 void main()
 {
-    for(x=1;x<=10;x++)
+    if (3 + 5 < 10)
     {
-        printf("Probando el ciclo for\n");
+        if (3 < 5)
+        {
+            while (5 > 2)
+            {
+                printf("Hola mundo");
+            }
+        }
+    }
+    else
+    {
+        printf("prueba");
     }
 }
