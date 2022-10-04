@@ -5,7 +5,7 @@ namespace Semantica
 {
     public class Lexico : Token
     {
-        StreamReader archivo;
+        protected StreamReader archivo;
         protected StreamWriter log;
         const int F = -1;
         const int E = -2;
@@ -349,20 +349,6 @@ namespace Semantica
         public bool FinArchivo()
         {
             return archivo.EndOfStream;
-        }
-
-        public int getPosicion()
-        {
-            return posicion;
-        }
-        public char contenidoC()
-        {
-            return (char) archivo.Peek();
-        }
-        public void SetPosition(long posicion)
-        {
-            archivo.DiscardBufferedData();
-            archivo.BaseStream.Seek(posicion, SeekOrigin.Begin);
         }
     }
 }

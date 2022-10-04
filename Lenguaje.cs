@@ -54,7 +54,12 @@ namespace Semantica
             }
             return Variable.TipoDato.Char;
         }
-        //Programa  -> Librerias? Variables? Main
+        //Programa  -> Librerias? Variables? Main     
+        public void SetPosicion(long posicion)
+        {
+            archivo.DiscardBufferedData();
+            archivo.BaseStream.Seek(posicion, SeekOrigin.Begin);
+        }
         public void Programa()
         {
             Libreria();
@@ -331,7 +336,8 @@ namespace Semantica
             match("while");
             match("(");
             validarDo = Condicion();
-            if(!evaluacion){
+            if (!evaluacion)
+            {
                 validarDo = evaluacion;
             }
             match(")");
@@ -343,32 +349,30 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
-            int pos = getPosicion();
-            //Requerimiento 4
-            //Requerimiento 6: 
-            //a) Guardar la posición del archivo de texto
-            //b) Agregar un ciclo while y validar la condición   
-            //do{ 
-            Console.WriteLine(contenidoC());
-            SetPosition(pos + 5);
-            Console.WriteLine(contenidoC());
-            bool validarFor = Condicion();
-            if (!evaluacion)
+            bool validarFor;
+            int pos = posicion;
+            do
             {
-                validarFor = evaluacion;
-            }
-            match(";");
-            Incremento(validarFor);
-            match(")");
-            if (getContenido() == "{")
-            {
-                BloqueInstrucciones(validarFor);
-            }
-            else
-            {
-                Instruccion(validarFor);
-            }
-            //}while(validarFor);
+                posicion = pos;
+                SetPosicion(posicion);
+                NextToken();  
+                validarFor = Condicion();
+                if (!evaluacion)
+                {
+                    validarFor = evaluacion;
+                }
+                match(";");
+                Incremento(validarFor);
+                match(")");
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones(validarFor);
+                }
+                else
+                {
+                    Instruccion(validarFor);
+                }
+            } while (validarFor);
             //d) Sacar otro token
         }
 
@@ -537,7 +541,7 @@ namespace Semantica
                 if (evaluacion)
                 {
                     Expresion();
-                    Console.WriteLine(stack.Pop());
+                    Console.Write(stack.Pop());                  
                 }
             }
             match(")");
