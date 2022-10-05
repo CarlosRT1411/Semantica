@@ -281,6 +281,7 @@ namespace Semantica
                 clasifica(estado);
                 if (estado >= 0)
                 {
+                    log.WriteLine(posicion + "::" + (char)archivo.Peek() + "::" + estado);
                     archivo.Read();
                     posicion++;
                     if(c == '\n')

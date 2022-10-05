@@ -276,13 +276,12 @@ namespace Semantica
             Expresion();
             match(";");
             float resultado = stack.Pop();
-            Console.WriteLine(dominante);
-            Console.WriteLine(evaluaNumero(resultado));
+            //Console.WriteLine(dominante);
+            //Console.WriteLine(evaluaNumero(resultado));
             //log.Write(" = " + resultado);
             //
             if (dominante < evaluaNumero(resultado))
             {
-                Console.WriteLine("flag: " + evaluaNumero(resultado));
                 dominante = evaluaNumero(resultado);
             }
             //
@@ -351,10 +350,13 @@ namespace Semantica
             Asignacion(evaluacion);
             bool validarFor;
             int pos = posicion;
+            int lin = linea;
             do
             {
+
                 posicion = pos;
-                SetPosicion(posicion);
+                linea = lin;   
+                SetPosicion(posicion);      
                 NextToken();  
                 validarFor = Condicion();
                 if (!evaluacion)
@@ -364,6 +366,7 @@ namespace Semantica
                 match(";");
                 Incremento(validarFor);
                 match(")");
+                posicion -= 1;
                 if (getContenido() == "{")
                 {
                     BloqueInstrucciones(validarFor);
@@ -373,7 +376,6 @@ namespace Semantica
                     Instruccion(validarFor);
                 }
             } while (validarFor);
-            //d) Sacar otro token
         }
 
         //Incremento -> Identificador ++ | --
@@ -538,9 +540,9 @@ namespace Semantica
             }
             else
             {
+                Expresion();
                 if (evaluacion)
                 {
-                    Expresion();
                     Console.Write(stack.Pop());                  
                 }
             }
@@ -619,7 +621,6 @@ namespace Semantica
                 string operador = getContenido();
                 match(Tipos.OperadorFactor);
                 Factor();
-                //log.Write(operador + " ");
                 float n1 = stack.Pop();
                 float n2 = stack.Pop();
                 switch (operador)
@@ -638,7 +639,6 @@ namespace Semantica
         {
             if (getClasificacion() == Tipos.Numero)
             {
-                //log.Write(getContenido() + " ");
                 if (dominante < evaluaNumero(float.Parse(getContenido())))
                 {
                     dominante = evaluaNumero(float.Parse(getContenido()));
@@ -663,7 +663,7 @@ namespace Semantica
             {
                 bool huboCasteo = false;
                 Variable.TipoDato casteo = Variable.TipoDato.Char;
-                match("(");
+                match("("); 
                 if (getClasificacion() == Tipos.TipoDato)
                 {
                     huboCasteo = true;
