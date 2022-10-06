@@ -9,18 +9,19 @@ int i, ja, j, k;
 
 void main()
 {
-    for (i = 0; i < 5; i++)
+    for (i = 0; i <= 3; i++)
     {
-        for (j = 0; j < 5; j++)
+        for (j = 0; j < 2; j++)
         {
             printf("Hola");
             printf(j);
         }
+        printf("\n");
     }
 
     for (i = 0; i < 5; i++)
     {
-        printf("Hola");
+        printf("r");
         printf(i);
         printf("\n");
     }

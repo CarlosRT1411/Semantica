@@ -343,39 +343,41 @@ namespace Semantica
             match(";");
         }
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
-        private void For(bool evaluacion)
+private void For(bool evaluacion)
         {
             match("for");
             match("(");
             Asignacion(evaluacion);
+            string variable = getContenido();
             bool validarFor;
             int pos = posicion;
             int lin = linea;
             do
             {
-
-                posicion = pos;
-                linea = lin;   
-                SetPosicion(posicion);      
-                NextToken();  
                 validarFor = Condicion();
-                if (!evaluacion)
+                if(!evaluacion)
                 {
-                    validarFor = evaluacion;
+                    validarFor = false;
                 }
                 match(";");
                 Incremento(validarFor);
                 match(")");
-                posicion -= 1;
-                if (getContenido() == "{")
+                if(getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarFor);
+                    BloqueInstrucciones(validarFor);  
                 }
                 else
                 {
                     Instruccion(validarFor);
                 }
-            } while (validarFor);
+                if(validarFor)
+                {
+                    posicion = pos - variable.Length;
+                    linea = lin;
+                    SetPosicion(posicion);
+                    NextToken();
+                }
+            }while(validarFor);
         }
 
         //Incremento -> Identificador ++ | --
