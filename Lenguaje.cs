@@ -40,7 +40,9 @@ namespace Semantica
         {
             foreach (Variable v in variables)
                 if (v.getNombre().Equals(nombre))
+                {
                     return v.getValor();
+                }
             return 0;
         }
         private Variable.TipoDato getTipo(string nombre)
@@ -70,8 +72,12 @@ namespace Semantica
         private void modVariable(string nombre, float nuevoValor)
         {
             foreach (var v in variables)
+            {
                 if (v.getNombre() == nombre)
+                {
                     v.setValor(nuevoValor);
+                }
+            }
         }
         private bool existeVariable(string nombre)
         {
@@ -267,24 +273,19 @@ namespace Semantica
         {
             string nombre = getContenido();
             if (!existeVariable(getContenido()))
+            {
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
+            }
             match(Tipos.Identificador);
-            //log.WriteLine();
-            // log.Write(getContenido() + " = ");
             match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
             Expresion();
             match(";");
             float resultado = stack.Pop();
-            //Console.WriteLine(dominante);
-            //Console.WriteLine(evaluaNumero(resultado));
-            //log.Write(" = " + resultado);
-            //
             if (dominante < evaluaNumero(resultado))
             {
                 dominante = evaluaNumero(resultado);
             }
-            //
             if (dominante <= getTipo(nombre))
             {
                 if (evaluacion)
@@ -350,8 +351,8 @@ private void For(bool evaluacion)
             Asignacion(evaluacion);
             string variable = getContenido();
             bool validarFor;
-            int pos = posicion;
-            int lin = linea;
+            int posFor = posicion;
+            int linFor = linea;
             do
             {
                 validarFor = Condicion();
@@ -372,8 +373,8 @@ private void For(bool evaluacion)
                 }
                 if(validarFor)
                 {
-                    posicion = pos - variable.Length;
-                    linea = lin;
+                    posicion = posFor - variable.Length;
+                    linea = linFor;
                     SetPosicion(posicion);
                     NextToken();
                 }
@@ -385,7 +386,9 @@ private void For(bool evaluacion)
         {
             string Variable = getContenido();
             if (!existeVariable(getContenido()))
+            {
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
+            }
             match(Tipos.Identificador);
             if (getContenido() == "++")
             {
