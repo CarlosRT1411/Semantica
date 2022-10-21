@@ -1,15 +1,15 @@
 //Carlos Ramírez Tovar
 using System;
 
-//Requerimiento 1.- Actualizar dominante para variables en la expresión V 
-//Requerimiento 2.- Actualizar el dominante para el casteo y el valor de la subexpresion V
-//Requerimiento 3.- Programar un metodo de conversion de un valor a un tipo de dato V
-//                  private float conviert(float valor, String tipoDato);
-//                  Deberan de usar el residuo de la division por %255, %65535
-//Requerimiento 4.- Evaluar nuevamente la condición del if, else, while, for, doWhile con respecto al parametro que recibe
-//Requerimiento 5.- Levantar una excepción en scanf cuando la captura no sea un numero
-//Requerimiento 6.- Ejectura el for
-
+//Requerimiento 1.- Actualización: a)Agregar el residuo de la división en por factor
+//                                 b)Agregar en instrucción los incrementos de termino y los incrementos de factor
+//                                 c)PRogramar el destructor para ejecutar el metodo cerrar archivo
+//Requerimiento 2.-
+//                                 a)Marcar errores semanticos cuando los incrementos de termino o incrementos de factor superen el rango de la variable
+//                                 b)Considerar inciso b y c para el for
+//                                 c)Que funcione el do y el while
+//Requerimiento 3.-                a)Considerar las variables y los casteos de las expresiones matematicas en ensamblador
+//                                 b)Considerar el residuo de la división en ensamblador
 namespace Semantica
 {
     public class Lenguaje : Sintaxis
@@ -25,6 +25,9 @@ namespace Semantica
         {
 
         }
+        ~Lenguaje(){
+            Console.WriteLine("Destructor");
+        }
         private void addVariable(string nombre, Variable.TipoDato tipo)
         {
             variables.Add(new Variable(nombre, tipo));
@@ -33,6 +36,14 @@ namespace Semantica
         {
             foreach (Variable v in variables)
             {
+                log.WriteLine(v.getNombre() + " : " + v.getTipoDato() + "\n");
+            }
+        }
+        private void variablesAsm()
+        {
+            foreach (Variable v in variables)
+            {
+                asm.WriteLine("\t" + v.getNombre() + " dw ?");
                 log.WriteLine(v.getNombre() + " : " + v.getTipoDato() + "\n");
             }
         }
@@ -64,10 +75,16 @@ namespace Semantica
         }
         public void Programa()
         {
+            asm.WriteLine("#make_COM#");
+            asm.WriteLine("include emu8086.inc");
+            asm.WriteLine("ORG 100h");
             Libreria();
             Variables();
+            variablesAsm();
             Main();
             displayVariables();
+            asm.WriteLine("ret");
+            asm.WriteLine("END");
         }
         private void modVariable(string nombre, float nuevoValor)
         {
@@ -259,11 +276,11 @@ namespace Semantica
         {
             if (tipoDato == Variable.TipoDato.Char)
             {
-                return valor % 256;
+                return (char) valor % 256;
             }
             if (tipoDato == Variable.TipoDato.Int)
             {
-                return valor % 65536;
+                return (int) valor % 65536;
             }
             return valor;
         }
@@ -277,11 +294,16 @@ namespace Semantica
                 throw new Error("Error: No existe la variable " + getContenido() + " en linea: " + linea, log);
             }
             match(Tipos.Identificador);
+            //Si la getClasificacion es == a un incrementoTermino  o incrementoFactor
+                //Requerimiento 1.b
+                //Requerimiento 1.c
+            //else
             match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
             Expresion();
             match(";");
             float resultado = stack.Pop();
+            asm.WriteLine("POP AX");
             if (dominante < evaluaNumero(resultado))
             {
                 dominante = evaluaNumero(resultado);
@@ -290,6 +312,7 @@ namespace Semantica
             {
                 if (evaluacion)
                 {
+                    asm.WriteLine("MOV " + nombre + ", AX");
                     modVariable(nombre, resultado);
                 }
             }
@@ -415,6 +438,7 @@ private void For(bool evaluacion)
             match("(");
             Expresion();
             stack.Pop();
+            asm.WriteLine("POP AX");
             match(")");
             match("{");
             ListaDeCasos(evaluacion);
@@ -440,6 +464,7 @@ private void For(bool evaluacion)
             match("case");
             Expresion();
             stack.Pop();
+            asm.WriteLine("POP AX");
             match(":");
             ListaInstruccionesCase(evaluacion);
             if (getContenido() == "break")
@@ -462,7 +487,9 @@ private void For(bool evaluacion)
             match(Tipos.OperadorRelacional);
             Expresion();
             e2 = stack.Pop();
+            asm.WriteLine("POP AX");
             e1 = stack.Pop();
+            asm.WriteLine("POP BX");
             switch (operador)
             {
                 case "==":
@@ -548,7 +575,8 @@ private void For(bool evaluacion)
                 Expresion();
                 if (evaluacion)
                 {
-                    Console.Write(stack.Pop());                  
+                    Console.Write(stack.Pop());     
+                    asm.WriteLine("POP AX");             
                 }
             }
             match(")");
@@ -568,9 +596,10 @@ private void For(bool evaluacion)
             if (evaluacion)
             {
                 string val = "" + Console.ReadLine();
-                if (val.All(char.IsDigit))
+                float n;
+                if (float.TryParse(val, out n))
                 {
-                    modVariable(getContenido(), float.Parse(val));
+                    modVariable(getContenido(), n);
                 }
                 else
                 {
@@ -600,14 +629,20 @@ private void For(bool evaluacion)
                 Termino();
                 //log.Write(operador + " ");
                 float n1 = stack.Pop();
+                asm.WriteLine("POP BX");
                 float n2 = stack.Pop();
+                asm.WriteLine("POP AX");
                 switch (operador)
                 {
                     case "+":
                         stack.Push(n2 + n1);
+                        asm.WriteLine("ADD AX, BX");  
+                        asm.WriteLine("PUSH AX");
                         break;
                     case "-":
                         stack.Push(n2 - n1);
+                        asm.WriteLine("SUB AX, BX");
+                        asm.WriteLine("PUSH AX");
                         break;
                 }
             }
@@ -627,14 +662,26 @@ private void For(bool evaluacion)
                 match(Tipos.OperadorFactor);
                 Factor();
                 float n1 = stack.Pop();
+                asm.WriteLine("POP BX");
                 float n2 = stack.Pop();
+                asm.WriteLine("POP AX");
+                //Requerimiento 1.a
                 switch (operador)
                 {
                     case "*":
                         stack.Push(n2 * n1);
+                        asm.WriteLine("MUL BX");
+                        asm.WriteLine("PUSH AX");
                         break;
                     case "/":
                         stack.Push(n2 / n1);
+                        asm.WriteLine("DIV BX ");
+                        asm.WriteLine("PUSH AX");
+                        break;
+                    case "%": //Esto no se si funciona
+                        stack.Push(n2 % n1);
+                        asm.WriteLine("DIV BX ");
+                        asm.WriteLine("PUSH DX");
                         break;
                 }
             }
@@ -649,6 +696,8 @@ private void For(bool evaluacion)
                     dominante = evaluaNumero(float.Parse(getContenido()));
                 }
                 stack.Push(float.Parse(getContenido()));
+                asm.WriteLine("MOV AX, " + getContenido());
+                asm.WriteLine("PUSH AX");
                 match(Tipos.Numero);
             }
             else if (getClasificacion() == Tipos.Identificador)
@@ -694,10 +743,7 @@ private void For(bool evaluacion)
                 {
                     dominante = casteo;
                     float valor = stack.Pop();
-                    if (valor % 1 != 0 && casteo != Variable.TipoDato.Float)
-                    {
-                        valor = (float)Math.Truncate(valor);
-                    }
+                    asm.WriteLine("POP AX");
                     stack.Push(convierte(valor, casteo));
                     //Requerimiento 2 - Sacar un elmento del stack
                     //                  Convierto ese valor al equivalente en casteo
