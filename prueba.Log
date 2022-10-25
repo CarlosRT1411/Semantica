@@ -1,25 +1,4 @@
 Primer constructor
 Archivo: prueba.cpp
-25/10/2022 09:49:54 a. m.
-area : Float
-
-radio : Float
-
-pi : Float
-
-resultado : Float
-
-a : Int
-
-d : Int
-
-altura : Int
-
-x : Float
-
-y : Char
-
-i : Int
-
-j : Int
-
+25/10/2022 06:02:33 p. m.
+Error: No existe la variable * en linea: 46

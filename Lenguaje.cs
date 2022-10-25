@@ -374,6 +374,7 @@ private void For(bool evaluacion)
             Asignacion(evaluacion);
             string variable = getContenido();
             bool validarFor;
+            int incrementar = 0;
             int posFor = posicion;
             int linFor = linea;
             do
@@ -384,7 +385,7 @@ private void For(bool evaluacion)
                     validarFor = false;
                 }
                 match(";");
-                Incremento(validarFor);
+                incrementar = Incremento(validarFor);
                 match(")");
                 if(getContenido() == "{")
                 {
@@ -401,11 +402,12 @@ private void For(bool evaluacion)
                     SetPosicion(posicion);
                     NextToken();
                 }
+                modVariable(variable, getValor(variable) + incrementar);
             }while(validarFor);
         }
 
         //Incremento -> Identificador ++ | --
-        private void Incremento(bool evaluacion)
+        private int Incremento(bool evaluacion)
         {
             string Variable = getContenido();
             if (!existeVariable(getContenido()))
@@ -415,19 +417,20 @@ private void For(bool evaluacion)
             match(Tipos.Identificador);
             if (getContenido() == "++")
             {
+                match("++");
                 if (evaluacion)
                 {
-                    modVariable(Variable, getValor(Variable) + 1);
+                    return 1;
                 }
-                match("++");
+                return 0;
             }
             else
             {
-                if (evaluacion)
-                {
-                    modVariable(Variable, getValor(Variable) - 1);
-                }
                 match("--");
+                if (evaluacion) {
+                    return -1;
+                }
+                return 0;
             }
         }
 
