@@ -1,5 +1,5 @@
 ;Primer constructor
-; 25/10/2022 09:45:40 a. m.
+; 25/10/2022 09:49:54 a. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
@@ -48,7 +48,7 @@ SUB AX, BX
 PUSH AX
 POP AX
 MOV y, AX
-MOV AX, 60
+MOV AX, 61
 PUSH AX
 MOV AX, 61
 PUSH AX

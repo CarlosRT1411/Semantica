@@ -8,7 +8,7 @@ char y;int i ;int j;
 // Este programa calcula el volumen de un cilindro.
 void main(){
         y = (3 + 5) * 8 - (10 - 4)/2;
-    if (60 == 61){
+    if (61 == 61){
         x = 10;
     }
     /*//Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
