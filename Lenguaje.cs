@@ -3,7 +3,7 @@ using System;
 
 //Requerimiento 1.- Actualización: a)Agregar el residuo de la división en por factor
 //                                 b)Agregar en instrucción los incrementos de termino y los incrementos de factor
-//                                 c)PRogramar el destructor para ejecutar el metodo cerrar archivo
+//                                 c)Programar el destructor para ejecutar el metodo cerrar archivo
 //Requerimiento 2.-
 //                                 a)Marcar errores semanticos cuando los incrementos de termino o incrementos de factor superen el rango de la variable
 //                                 b)Considerar inciso b y c para el for
@@ -17,13 +17,14 @@ namespace Semantica
         List<Variable> variables = new List<Variable>();
         Stack<float> stack = new Stack<float>();
         Variable.TipoDato dominante;
+        int cIf;
         public Lenguaje()
         {
-
+            cIf = 0;
         }
         public Lenguaje(string nombre) : base(nombre)
         {
-
+            cIf = 0;
         }
         ~Lenguaje(){
             Console.WriteLine("Destructor");
@@ -44,7 +45,6 @@ namespace Semantica
             foreach (Variable v in variables)
             {
                 asm.WriteLine("\t" + v.getNombre() + " dw ?");
-                log.WriteLine(v.getNombre() + " : " + v.getTipoDato() + "\n");
             }
         }
         private float getValor(string nombre)
@@ -312,7 +312,6 @@ namespace Semantica
             {
                 if (evaluacion)
                 {
-                    asm.WriteLine("MOV " + nombre + ", AX");
                     modVariable(nombre, resultado);
                 }
             }
@@ -320,6 +319,7 @@ namespace Semantica
             {
                 throw new Error("Error de semantica no podemos asignar un <" + dominante + "> a un <" + getTipo(nombre) + "> en linea: " + linea, log);
             }
+            asm.WriteLine("MOV " + nombre + ", AX");
         }
 
         //While -> while(Condicion) bloque de instrucciones | instruccion
@@ -327,7 +327,7 @@ namespace Semantica
         {
             match("while");
             match("(");
-            bool validarWhile = Condicion();
+            bool validarWhile = Condicion(String.Empty);
             if (!evaluacion)
             {
                 validarWhile = evaluacion;
@@ -358,7 +358,7 @@ namespace Semantica
             }
             match("while");
             match("(");
-            validarDo = Condicion();
+            validarDo = Condicion(String.Empty);
             if (!evaluacion)
             {
                 validarDo = evaluacion;
@@ -378,7 +378,7 @@ private void For(bool evaluacion)
             int linFor = linea;
             do
             {
-                validarFor = Condicion();
+                validarFor = Condicion(String.Empty);
                 if(!evaluacion)
                 {
                     validarFor = false;
@@ -479,7 +479,7 @@ private void For(bool evaluacion)
         }
 
         //Condicion -> Expresion operador relacional Expresion
-        private bool Condicion()
+        private bool Condicion(string etiqueta)
         {
             float e1, e2;
             Expresion();
@@ -487,12 +487,14 @@ private void For(bool evaluacion)
             match(Tipos.OperadorRelacional);
             Expresion();
             e2 = stack.Pop();
-            asm.WriteLine("POP AX");
-            e1 = stack.Pop();
             asm.WriteLine("POP BX");
+            e1 = stack.Pop();
+            asm.WriteLine("POP AX");
+            asm.WriteLine("CMP AX, BX");
             switch (operador)
             {
                 case "==":
+                    asm.WriteLine("JNE " + etiqueta);
                     return e1 == e2;
                 case ">":
                     return e1 > e2;
@@ -503,6 +505,7 @@ private void For(bool evaluacion)
                 case "<=":
                     return e1 <= e2;
                 default:
+                    asm.WriteLine("JE: " + etiqueta);
                     return e1 != e2;
             }
         }
@@ -510,9 +513,10 @@ private void For(bool evaluacion)
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
         private void If(bool evaluacion)
         {
+            string etiquetaIf = "if" + ++cIf;
             match("if");
             match("(");
-            bool validarIf = Condicion();
+            bool validarIf = Condicion(etiquetaIf);
             if (!evaluacion)
             {
                 validarIf = evaluacion;
@@ -552,6 +556,7 @@ private void For(bool evaluacion)
                     }
                 }
             }
+            asm.WriteLine(etiquetaIf + ":");
         }
 
         //Printf -> printf(cadena|expresion);
@@ -702,6 +707,7 @@ private void For(bool evaluacion)
             }
             else if (getClasificacion() == Tipos.Identificador)
             {
+                //Requerimiento 3: a) Agregar los tipos de identificador
                 stack.Push(getValor(getContenido()));
                 if (!existeVariable(getContenido()))
                 {
