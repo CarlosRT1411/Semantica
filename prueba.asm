@@ -1,55 +1,42 @@
 ;Primer constructor
-; 28/10/2022 08:54:50 p. m.
+; 29/10/2022 06:05:55 p. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
-MOV AX, 1
+whileInicio1:
+MOV AX, i
 PUSH AX
-POP AX
-MOV x, AX
 MOV AX, 5
 PUSH AX
+POP BX
 POP AX
-MOV y, AL
-PRINT 'Hola mundo'
-MOV AX, x
+CMP AX, BX
+JGE whileFin1:
+whileInicio2:
+MOV AX, j
 PUSH AX
-MOV AL, y
+MOV AX, 10
 PUSH AX
 POP BX
 POP AX
 CMP AX, BX
-JL if1
-MOV AX, x
+JGE whileFin2:
+PRINT 's'
+MOV AX, 2
 PUSH AX
-MOV AL, y
-PUSH AX
-POP BX
 POP AX
-CMP AX, BX
-JGE if2
-PRINT 'Esto tampoco'
-JMP else2
-if2:
-MOV AX, x
-PUSH AX
-MOV AL, y
-PUSH AX
-POP BX
-POP AX
-CMP AX, BX
-JNE if3
-PRINT 'Esto nuevamente si'
-JMP else3
-if3:
-PRINT 'Esto nuevamente no'
-else3:
-PRINT 'Esto si'
-else2:
-JMP else1
-if1:
-PRINT 'Esto neh'
-else1:
+MOV BX, j
+ADD BX, AX 
+MOV j, BX
+JMP whileInicio2:
+whileFin2:
+PRINTN ''
+PRINTN 'Arriba'
+PRINTN ' las chivas'
+PRINT ''
+INC i
+JMP whileInicio1:
+whileFin1:
 
 ;Variables
 	area dd ?

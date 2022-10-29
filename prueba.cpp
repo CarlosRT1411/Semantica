@@ -19,25 +19,17 @@ void main(){
             }  
         } 
     }*/
-    x = 1;
-    y = 5;
-    printf("Hola mundo");
-    if(x >= y){
-        if(x < y){
-            printf("Esto tampoco");
-        }else {
-            if(x == y){
-                printf("Esto nuevamente si");
-            }else {
-                printf("Esto nuevamente no");
-            }
-            printf("Esto si");
-        }
-    }else {
-        printf("Esto neh");
-    }
 
-    //y = y + 2;
+    while(i < 5)
+    {
+        while(j < 10)
+        {
+            printf("s");
+            j+=2;
+        }
+        printf("\nArriba\n las chivas\n");
+        i++;
+    }
     //Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
     /*printf("Introduce la altura de la piramide: ");
     scanf("altura", &altura);
@@ -45,8 +37,7 @@ void main(){
     if(altura >2)
         for(i = altura; i > 0; i--)
         {
-        
-            for(j = 0; j < altura-i; j+=1){
+            for(j = 0; j < altura-i; j++){
                 if(j!=2){
                     printf("*");
                 }
@@ -55,7 +46,7 @@ void main(){
                 }
             }
             printf("\n");
-        }
+        } 
     else
         printf("\nError: la altura debe de ser mayor que 2\n");
     if(1 != 1){
@@ -70,6 +61,6 @@ void main(){
     y = (char)(a);  //Requerimiento 2 y 3, actualiza el dominante y convierte el valor con una funcion
     printf("\nValor de variable char 'y' despues del casteo de a: ");
     printf(y);
-    printf("\nA continuacion se intenta asignar un int a un char sin usar casteo: \n");
-    y = a; //Requerimiento 1.- debe marcar error */
+    printf("\nA continuacion se intenta asignar un int a un char sin usar casteo: \n");*/
+    //y = a; //Requerimiento 1.- debe marcar error */
 }
