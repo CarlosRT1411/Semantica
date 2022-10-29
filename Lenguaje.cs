@@ -9,15 +9,15 @@ using System;
 //                                 b)Considerar inciso a y b para el for V
 //                                 c)Que funcione el do y el while V 
 
-//Requerimiento 3.-                a)Considerar las variables y los casteos de las expresiones matematicas en ensamblador
-//                                 b)Considerar el residuo de la división en ensamblador
-//                                 c)Programar el printf y scanf
+//Requerimiento 3.-                a)Considerar las variables y los casteos de las expresiones matematicas en ensamblador V
+//                                 b)Considerar el residuo de la división en ensamblador V
+//                                 c)Programar el printf y scanf V
 
-//Requerimiento 4.-                a)Programar el else en ensamblador
+//Requerimiento 4.-                a)Programar el else en ensamblador V
 //                                 b)Progrmar el for en ensamblador
 
-//Requerimiento 5.-                a)Programar el while
-//                                 b)Programar el do while
+//Requerimiento 5.-                a)Programar el while en ensamblador
+//                                 b)Programar el do while en ensamblador
 namespace Semantica
 {
     public class Lenguaje : Sintaxis
@@ -51,9 +51,21 @@ namespace Semantica
         }
         private void variablesAsm()
         {
+            asm.WriteLine("\n;Variables");
             foreach (Variable v in variables)
             {
-                asm.WriteLine("\t" + v.getNombre() + " dw ?");
+                if(v.getTipoDato() == Variable.TipoDato.Char)
+                {
+                    asm.WriteLine("\t" + v.getNombre() + " db ?"); //db = define byte
+                }
+                else if(v.getTipoDato() == Variable.TipoDato.Int)
+                {
+                    asm.WriteLine("\t" + v.getNombre() + " dw ?"); //dw = define word
+                }
+                else
+                {
+                    asm.WriteLine("\t" + v.getNombre() + " dd ?"); //dd = define double
+                }
             }
         }
         private float getValor(string nombre)
@@ -89,10 +101,14 @@ namespace Semantica
             asm.WriteLine("ORG 100h");
             Libreria();
             Variables();
-            variablesAsm();
+            //asm.WriteLine("MOV AX, 0 ;Linea que se saltara si existe un DB");
             Main();
             displayVariables();
+            variablesAsm();
             asm.WriteLine("ret");
+            asm.WriteLine("define_print_num");
+            asm.WriteLine("define_print_num_uns");
+            asm.WriteLine("define_scan_num");
             asm.WriteLine("END");
         }
         private void modVariable(string nombre, float nuevoValor)
@@ -335,7 +351,14 @@ namespace Semantica
                 {
                     throw new Error("Error de semantica no podemos asignar un <" + dominante + "> a un <" + getTipo(nombre) + "> en linea: " + linea, log);
                 }
-                asm.WriteLine("MOV " + nombre + ", AX");
+                if(getTipo(nombre) == Variable.TipoDato.Char)
+                {
+                    asm.WriteLine("MOV " + nombre + ", AL");
+                }
+                else 
+                {
+                    asm.WriteLine("MOV " + nombre + ", AX");
+                }
             }
         }
 
@@ -611,6 +634,7 @@ namespace Semantica
         private void If(bool evaluacion)
         {
             string etiquetaIf = "if" + ++cIf;
+            string etiquetaElse = "else" + cIf;
             match("if");
             match("(");
             bool validarIf = Condicion(etiquetaIf);
@@ -627,6 +651,8 @@ namespace Semantica
             {
                 Instruccion(validarIf);
             }
+            asm.WriteLine("JMP " + etiquetaElse);
+            asm.WriteLine(etiquetaIf + ":");
             if (getContenido() == "else")//Requerimiento 4
             {
                 match("else");
@@ -653,7 +679,7 @@ namespace Semantica
                     }
                 }
             }
-            asm.WriteLine(etiquetaIf + ":");
+            asm.WriteLine(etiquetaElse + ":");
         }
 
         //Printf -> printf(cadena|expresion);
@@ -670,6 +696,7 @@ namespace Semantica
                 {
                     Console.Write(getContenido());
                 }
+                asm.WriteLine("PRINT " +  "\'" + getContenido() +  "\'");
                 match(Tipos.Cadena);
             }
             else
@@ -680,6 +707,7 @@ namespace Semantica
                     Console.Write(stack.Pop());
                     asm.WriteLine("POP AX");
                 }
+                //Escribir variables
             }
             match(")");
             match(";");
@@ -707,6 +735,8 @@ namespace Semantica
                 {
                     throw new Error("Error: No se puede asignar un valor no numerico a una variable numerica en linea: " + linea, log);
                 }
+                asm.WriteLine("CALL scan_num");
+                asm.WriteLine("MOV " + getContenido() + ", CX");
             }
             match(Tipos.Identificador);
             match(")");
@@ -780,7 +810,7 @@ namespace Semantica
                         asm.WriteLine("DIV BX ");
                         asm.WriteLine("PUSH AX");
                         break;
-                    case "%": //Esto no se si funciona
+                    case "%": 
                         stack.Push(n2 % n1);
                         asm.WriteLine("DIV BX ");
                         asm.WriteLine("PUSH DX");
@@ -814,6 +844,15 @@ namespace Semantica
                 {
                     dominante = getTipo(getContenido());
                 }
+                if(getTipo(getContenido()) == Variable.TipoDato.Char)
+                {
+                    asm.WriteLine("MOV AL, " + getContenido());
+                }
+                else 
+                {
+                    asm.WriteLine("MOV AX, " + getContenido());
+                }
+                asm.WriteLine("PUSH AX");
                 match(Tipos.Identificador);
             }
             else
@@ -846,13 +885,7 @@ namespace Semantica
                 {
                     dominante = casteo;
                     float valor = stack.Pop();
-                    asm.WriteLine("POP AX");
                     stack.Push(convierte(valor, casteo));
-                    //Requerimiento 2 - Sacar un elmento del stack
-                    //                  Convierto ese valor al equivalente en casteo
-                    //Requeremiento 3
-                    //                  Si el casteo es char y el pop regresa un 256, 
-                    //                  el valor equivalente en casteo es 0
                 }
             }
         }
