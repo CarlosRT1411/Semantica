@@ -20,8 +20,9 @@ using System;
 //                                 b)Programar el do while en ensamblador V
 namespace Semantica
 {
-    public class Lenguaje : Sintaxis
+    public class Lenguaje : Sintaxis, IDisposable
     {
+       
         List<Variable> variables = new List<Variable>();
         Stack<float> stack = new Stack<float>();
         Variable.TipoDato dominante;
@@ -37,10 +38,17 @@ namespace Semantica
             cIf = cFor = cDo = cWhile= 0;
             asmIncrementar = "";
         }
-        ~Lenguaje()
+        //~Lenguaje()
+        //{
+        //    Console.WriteLine("Destructor");
+        //}
+
+        public void Dispose()
         {
+            cerrar(); 
             Console.WriteLine("Destructor");
         }
+
         private void addVariable(string nombre, Variable.TipoDato tipo)
         {
             variables.Add(new Variable(nombre, tipo));
