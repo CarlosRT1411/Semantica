@@ -18,7 +18,8 @@ void main(){
                 }                    
             }  
         } 
-    }*/
+    }*/ 
+
     //Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
     printf("Introduce la altura de la piramide: ");
     scanf("altura", &altura);
@@ -51,5 +52,5 @@ void main(){
     printf("\nValor de variable char 'y' despues del casteo de a: ");
     printf(y);
     printf("\nA continuacion se intenta asignar un int a un char sin usar casteo: \n");
-    //y = a; //Requerimiento 1.- debe marcar error */
+    //y = a; //Requerimiento 1.- debe marcar error 
 }

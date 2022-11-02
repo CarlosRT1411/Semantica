@@ -21,5 +21,5 @@ namespace Semantica
                 Console.WriteLine(e.Message);
             }
         }
-    }
+    } 
 }

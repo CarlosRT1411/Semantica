@@ -1,5 +1,5 @@
 ;Primer constructor
-; 30/10/2022 02:31:42 p. m.
+; 02/11/2022 03:23:16 p. m.
 #make_COM#
 include emu8086.inc
 ORG 100h

@@ -3,7 +3,7 @@ using System;
 
 //Requerimiento 1.- Actualización: a)Agregar el residuo de la división en por factor V
 //                                 b)Agregar en instrucción los incrementos de termino y los incrementos de factor V
-//                                 c)Programar el destructor para ejecutar el metodo cerrar archivo
+//                                 c)Programar el destructor para ejecutar el metodo cerrar archivo V
 
 //Requerimiento 2.-                a)Marcar errores semanticos cuando los incrementos de termino o incrementos de factor superen el rango de la variable V
 //                                 b)Considerar inciso a y b para el for V
@@ -38,10 +38,6 @@ namespace Semantica
             cIf = cFor = cDo = cWhile= 0;
             asmIncrementar = "";
         }
-        //~Lenguaje()
-        //{
-        //    Console.WriteLine("Destructor");
-        //}
 
         public void Dispose()
         {
@@ -579,6 +575,14 @@ namespace Semantica
                 {
                     variableModificada++;
                 }
+                if(getTipo(Variable) == Semantica.Variable.TipoDato.Char && variableModificada > 255)
+                {
+                    throw new Error("Error: El valor de la variable " + Variable + " excede el rango de un char en linea: " + linea, log);
+                }
+                else if(getTipo(Variable) == Semantica.Variable.TipoDato.Int && variableModificada > 65535)
+                {
+                    throw new Error("Error: El valor de la variable " + Variable + " excede el rango permitido en linea: " + linea, log);
+                }
                 match("++");
             }
             else if (getContenido() == "--")
@@ -696,8 +700,33 @@ namespace Semantica
                 {
                     variableModificada /= resultado;
                 }
+            }else if (getContenido() == "%=")
+            {
+                match("%=");
+                Expresion(imprimir);
+                resultado = stack.Pop();
+                if (imprimir)
+                {
+                    asmIncrementar = "POP BX";
+                    if(getTipo(Variable) > Semantica.Variable.TipoDato.Char)
+                    {
+                        asmIncrementar += "\nMOV AX, " + Variable;
+                        asmIncrementar += "\nDIV BX ";
+                        asmIncrementar += "\nMOV " + Variable + ", DX";
+                    }
+                    else
+                    {
+                        asmIncrementar += "\nMOV AL, " + Variable;
+                        asmIncrementar += "\nDIV BL ";
+                        asmIncrementar += "\nMOV " + Variable + ", DL";
+                    }
+                }
+                if (evaluacion)
+                {
+                    variableModificada %= resultado;
+                }
             }
-            dominante = evaluaNumero(variableModificada);
+            
             if(getTipo(Variable) < dominante)
             {
                 throw new Error("Error de semantica no podemos asignar un <" + dominante + "> a un <" + getTipo(Variable) + "> en linea: " + linea, log);
