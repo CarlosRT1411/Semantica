@@ -809,27 +809,39 @@ namespace Semantica
             {
                 case "==":
                     if(imprimir)
+                    {
                         asm.WriteLine("JNE " + etiqueta);
+                    }
                     return e1 == e2;
                 case ">":
                     if(imprimir)
+                    {
                         asm.WriteLine("JLE " + etiqueta);
+                    }
                     return e1 > e2;
                 case ">=":
                     if(imprimir)
+                    {
                         asm.WriteLine("JL " + etiqueta);
+                    }
                     return e1 >= e2;
                 case "<":
                     if(imprimir)
+                    {
                         asm.WriteLine("JGE " + etiqueta);
+                    }
                     return e1 < e2;
                 case "<=":
                     if(imprimir)
+                    {
                         asm.WriteLine("JG " + etiqueta);
+                    }
                     return e1 <= e2;
                 default:
                     if(imprimir)
+                    {
                         asm.WriteLine("JE " + etiqueta);
+                    }
                     return e1 != e2;
             }
         }

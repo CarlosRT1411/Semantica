@@ -25,15 +25,16 @@ void main(){
     scanf("altura", &altura);
     //Requerimiento 6.- Ejecutar el for y for anidado
     if(altura >2)
-        for(i = altura; i > 0; i--)
-        {
-            for(j = 0; j < altura-i; j++){
+        for(i = altura; i > 0; i-=1){
+            j = 0; 
+            while(j < altura-i){
                 if(j!=2){
                     printf("*");
                 }
                 else{
                     printf("-");//Requerimiento 4.- evalua nuevamente los else
                 }
+                j+=1; 
             }
             printf("\n");
         } 

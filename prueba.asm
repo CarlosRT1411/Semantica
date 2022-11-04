@@ -1,5 +1,5 @@
 ;Primer constructor
-; 02/11/2022 03:23:16 p. m.
+; 03/11/2022 07:04:52 p. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
@@ -28,11 +28,13 @@ POP BX
 POP AX
 CMP AX, BX
 JLE finFor1
+MOV AX, 1
+PUSH AX
 MOV AX, 0
 PUSH AX
 POP AX
 MOV j, AX
-InicioFor2:
+whileInicio1:
 MOV AX, j
 PUSH AX
 MOV AX, altura
@@ -46,7 +48,7 @@ PUSH AX
 POP BX
 POP AX
 CMP AX, BX
-JGE finFor2
+JGE whileFin1:
 MOV AX, j
 PUSH AX
 MOV AX, 2
@@ -60,12 +62,20 @@ JMP else2
 if2:
 PRINT '-'
 else2:
-INC j
-JMP InicioFor2
-finFor2:
+MOV AX, 1
+PUSH AX
+POP AX
+MOV BX, j
+ADD BX, AX 
+MOV j, BX
+JMP whileInicio1:
+whileFin1:
 PRINTN ''
 PRINT ''
-DEC i
+POP AX
+MOV BX, i
+SUB BX, AX 
+MOV i, BX
 JMP InicioFor1
 finFor1:
 JMP else1
